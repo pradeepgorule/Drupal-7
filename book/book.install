@@ -1,0 +1,102 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function book_install()
+{
+
+  $t = get_t();
+
+  // Step 1 - Define the custom content type
+
+  $content_type = array(
+
+    'type'          => 'book',
+    'name'          => $t('Book'),
+    'description' => $t('Create a new book'),
+    'title_label' => $t('Book title'),
+    'base'          => 'node_content',
+    'custom'        => TRUE,
+
+  );
+
+  $node_type = node_type_set_defaults($content_type);
+
+  node_type_save($node_type);
+
+  // Step 2 - Create new fields
+
+  $fields = array(
+
+    // Author’s name
+
+    'book_author_name'  => array(
+
+      'field_name'  => 'book_author_name',
+      'type'          => 'text',
+      'cardinality' => 1,
+
+    ),
+
+    // Description
+
+    'book_description'  => array(
+
+      'field_name'  => 'book_description',
+      'type'          => 'text_long',
+      'cardinality' => 1,
+
+    ),
+
+  );
+
+  foreach( $fields as $field ) {
+
+    field_create_field($field);
+
+  }
+
+  // Step 3 - Attach fields to content type
+
+  $instances = array(
+
+    // Author’s name
+
+    'book_author_name'  => array(
+
+      'field_name'   => 'book_author_name',
+      'label'        => $t('Author Name'),
+      'required'     => TRUE,
+      'widget'       => array(
+        'type'  => 'text_textfield'
+      ),
+
+    ),
+
+    // Description
+
+    'book_description'  => array(
+
+      'field_name'   => 'book_description',
+      'label'        => $t('Description'),
+      'required'     => TRUE,
+      'widget'       => array(
+        'type'  => 'text_textarea'
+      ),
+
+    ),
+
+  );
+
+  foreach( $instances as $instance ) { // Loop through our instances
+
+    $instance['entity_type']   = 'node';
+    $instance['bundle']        = 'book'; // Attach the instance to our content type
+
+    field_create_instance($instance);
+
+  }
+
+}
+

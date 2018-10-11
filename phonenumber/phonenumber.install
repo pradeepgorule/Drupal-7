@@ -1,0 +1,19 @@
+<?php
+
+function phonenumber_field_schema($field) {
+
+  if ($field['type'] == 'phonenumber') {
+
+    $schema['columns']['field_phone_number_value'] = array(
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => FALSE,
+    );
+
+    $schema['indexes'] = array(
+      'field_phone_number_value' => array('field_phone_number_value'),
+    );
+
+    return $schema;
+  }
+}

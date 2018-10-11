@@ -1,0 +1,16 @@
+<?php
+/**
+ * Implements hook_node_info()
+ */
+function book_node_info() {
+    return array(
+        'product' => array(
+            'name' => t('book'),
+            'base' => 'book',
+            'description' => t('You can define new product here'),
+            'has_title' => TRUE,
+            'title_label' => t('book title')
+         )
+    );
+}
+

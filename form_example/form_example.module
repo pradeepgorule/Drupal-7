@@ -1,0 +1,116 @@
+<?php
+function form_example_menu() {
+  $items = array();
+
+  $items['examples/form-example'] = array( //this creates a URL that will call this form at "examples/form-example"
+    'title' => 'Example Form', //page title
+    'description' => 'A form to mess around with.',
+    'page callback' => 'drupal_get_form', //this is the function that will be called when the page is accessed.  for a form, use drupal_get_form
+    'page arguments' => array('form_example_form'), //put the name of the form here
+    'access callback' => TRUE
+  );
+  $items['examples/form-submissions'] = array( //this creates a URL that will call this form at "examples/form-example"
+    'title' => 'My form submission data', //page title
+    'description' => 'A form to mess around with.',
+    'page callback' => 'form_example_submissions',
+    'access arguments' => array('access form_example')
+  );
+ $items['examples/form-submissions/delete/%'] = array(
+    'title' => t('Delete Data'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('data_delete_confirm', 3),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK, 
+   );
+
+  return $items;
+}
+
+function form_example_form($form, &$form_state) {
+  
+ $form['price'] = array(
+    '#type' => 'textfield', //you can find a list of available types in the form api
+    '#title' => 'What is Your Price?',
+    '#size' => 10,
+    '#maxlength' => 10,
+    '#required' => TRUE, //make this field required 
+  );
+ $form['Name'] = array(
+    '#type' => 'textfield', //you can find a list of available types in the form api
+    '#title' => 'Name',
+    '#size' => 10,
+    '#maxlength' => 100,
+    '#required' => TRUE, //make this field required 
+  );
+
+  $form['submit_button'] = array(
+    '#type' => 'submit',
+    '#value' => t('submit'),
+  );
+  
+  return $form;
+}
+
+function form_example_form_validate($form, &$form_state) {
+  if (!($form_state['values']['price'] > 0)){
+    form_set_error('price', t('Price must be a positive number.'));
+  }
+}
+function form_example_form_submit($form, &$form_state) {
+  	$fe_id = db_insert('form_example_table')->fields(array(
+		'price' => $form_state['values']['price'],
+		'Name' => $form_state['values']['Name'],
+	))
+	->execute();
+	drupal_set_message(t('ur entry has been added'));
+  
+}
+/*
+function form_example_submissions() {
+$header = array(t('price') , t('Name'),t('Edit'),t('Delete'));
+	$results = db_query("SELECT * FROM {form_example_table}");
+	$rows = array();
+	foreach($results as $result) {
+		$rows[]=array(
+			$result -> price,
+			$result -> name,
+		);
+
+	}
+	return theme('table', array('header' => $header, 'rows' => $rows ));
+}
+*/
+function form_example_submissions() {
+$header = array('Price','Name');
+	$results = db_query("SELECT * FROM {form_example_table}");
+	$rows = array();
+	foreach($results as $key) {
+		$price = $key->price;
+		$name = $key->name;
+		$rows[] = array($price,$name,"<a href='examples/form-submissions/edit/{$key->price}'>" . t('Edit') . "</a> | <a href='examples/form-submissions/delete/{$key->price}'>" . t('Delete') . "</a>");
+	}
+	return theme('table', array('header' => $header, 'rows' => $rows));
+}
+
+function data_delete_confirm($form ,&$form_state, $product_code) {
+$form['_myformstorage'] = array(
+		'#type' => 'value',
+		'#value' => $price,);
+		
+		drupal_set_message($price);
+		
+return confirm_form($form,t('Are you sure you want to delete '.$price.' Data?'),
+    	isset($_GET['destination']) ? $_GET['destination'] : "examples/form-submissions",t('This action cannot be undone.'),t('Delete'),t('Cancel'));
+		
+}
+
+function data_delete_confirm_submit($form, &$form_state) {
+	$form_values = $form_state['values'];
+ if ($form_state['values']['confirm']) {
+$price = $form_state['values']['form_example_table'];
+               drupal_set_message(t('Data ' .$price.' will get deleted.'));
+		                        
+                    $result = db_query("DELETE FROM {form_example_table} where price='{$price}'");
+ drupal_set_message(t('Data has been deleted successfully.'));}
+ drupal_goto("examples/form-submissions");
+}

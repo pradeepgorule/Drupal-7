@@ -1,0 +1,51 @@
+<?php
+
+  /**
+   * Implements hook_field_widget_info()
+   */
+
+
+    function phonenumber_field_widget_info(){
+    return array(
+      'phonenumber' => array(
+    'label' =>t('phonenumber Default'),
+    'field types' => array('text'),
+    'settings' => array(
+     'size' => 10,
+    ),
+    'behaviors' => array(
+    'multiple values' => FIELD_BEHAVIOR_DEFAULT,
+    'default value' => FIELD_BEHAVIOR_DEFAULT,
+    )),
+    );
+  }
+
+  function phonenumber_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element)
+
+  {
+
+    $element += array(
+  '#type' =>'textfield',
+    '#title' =>t('Phone Number'),
+    '#default_value' => isset($items[$delta]['phonenumber']) ? $items[$delta]['phonenumber'] : '',
+    '#element_validate' => array('phonenumber_validate'), 
+  );
+  return array(
+    'value' => $element,
+  );
+  }
+
+
+ function phonenumber_validate($element, &$form_state, $form) {
+  $value = $element['#value'];
+  if (!empty($value) && !is_numeric($value)) {
+    form_error($element, t('Please enter valid number.'));
+  }
+ // else if (empty($value)) {
+ //   form_error($element, t('Please enter number.'));
+ // }
+   else if ($value < 0) {
+    form_error($element, t('Please enter vaild number.'));
+  }
+}
+

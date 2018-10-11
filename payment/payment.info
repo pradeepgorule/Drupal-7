@@ -1,0 +1,5 @@
+name = Payment
+description = Defines Payment mode i.e Mastercard or Visa.
+package = Core
+version = VERSION
+core = 7.x

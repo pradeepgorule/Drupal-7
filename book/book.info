@@ -1,0 +1,7 @@
+name = Book
+description = Creates a custom Book content type
+version = 1.0
+core = 7.x
+
+files[] = book.install
+files[] = book.module
